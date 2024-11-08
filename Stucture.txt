@@ -1,0 +1,16 @@
+react-vite-auth/
+├── client/                # Frontend (React with Vite)
+│   ├── public/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── context/
+│   │   ├── App.jsx
+│   │   ├── main.jsx
+│   │   └── styles.css
+│   └── package.json
+├── server/                # Backend (Express)
+│   ├── models/
+│   ├── routes/
+│   ├── server.js
+│   └── package.json
+└── .env                    # Environment variables
