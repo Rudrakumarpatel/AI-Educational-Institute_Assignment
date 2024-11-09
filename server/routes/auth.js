@@ -1,35 +1,37 @@
-// routes/auth.js
-const express = require('express');
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const express = require("express");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const User = require("../models/UserSchema");
 const router = express.Router();
 
-// Register a new user
-router.post('/register', async (req, res) => {
-    const { email, password } = req.body;
-    try {
-        const newUser  = new User({ email, password });
-        await newUser .save();
-        res.status(201).json({ message: 'User  registered successfully' });
-    } catch (error) {
-        res.status(400).json({ error: 'User  registration failed' });
-    }
+// Signup route
+router.post("/signup", async (req, res) => {
+  const { username, email, password } = req.body;
+  try {
+    const hashedPassword = bcrypt.hashSync(password, 8);
+    const user = new User({ username:email, email, password: hashedPassword });
+    await user.save();
+    res.status(201).send({ message: "User  registered successfully!" });
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
 });
 
-// Login user
-router.post('/login', async (req, res) => {
-    const { email, password } = req.body;
-    try {
-        const user = await User.findOne({ email });
-        if (!user || !(await user.comparePassword(password))) {
-            return res.status(401).json({ error: 'Invalid credentials' });
-        }
+// Signin route
+router.post("/signin", async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.findOne({email});
+    if (!user) return res.status(404).send({ message: "User  Not found." });
 
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.json({ token });
-    } catch (error) {
-        res.status(500).json({ error: 'Login failed' });
-    }
+    const passwordIsValid = bcrypt.compareSync(password, user.password);
+    if (!passwordIsValid) return res.status(401).send({ accessToken: null, message: "Invalid Password!" });
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: 86400 });
+    res.status(200).send({ id: user._id, username: user.username, accessToken: token });
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
 });
 
 module.exports = router;

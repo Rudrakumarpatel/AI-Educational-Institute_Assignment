@@ -27,7 +27,7 @@ const applicationRoutes = require("./routes/application.js");
 app.use("/api/apply", applicationRoutes);
 
 const login = require("./routes/auth.js");
-app.use("/api/login", login);
+app.use("/api/auth", login);
 
 // Start the server
 app.listen(PORT, () => {
